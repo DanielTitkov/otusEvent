@@ -60,11 +60,10 @@ func main() {
         HwAccepted{123445, 8},
     }
 
-    var err error
     for _, event := range(events) {
-        err = LogOtusEvent(event, os.Stdout)
-        if err != nil {
+        if err := LogOtusEvent(event, os.Stdout); err != nil {
             log.Fatal(err)
         }
+        time.Sleep(413 * time.Millisecond)
     }
 }

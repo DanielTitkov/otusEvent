@@ -4,6 +4,7 @@ package main
 import (
     "testing"
     "time"
+    "bytes"
     "github.com/bouk/monkey"
 )
 
@@ -32,5 +33,29 @@ func TestHwSubmittedLog(t *testing.T) {
     expected := "1997.07.01 16:30:55 | homework #123999 submitted, comment: 'Best code ever!!'"
     if res := hws.Log(); res != expected {
         t.Errorf("expected %v, got %v", expected, res)
+    }
+}
+
+
+func TestEventLog(t *testing.T) {
+    defer setupMockTime().Unpatch()
+
+    events := []OtusEvent{
+        HwSubmitted{162347, "Ook. Ook.", "Ook!"},
+        HwAccepted{162347, 8},
+    }
+
+    var buf bytes.Buffer
+    for _, event := range(events) {
+        if err := LogOtusEvent(event, &buf); err != nil {
+            t.Fatalf("LogOtusEvent returned error: %s", err)
+        }
+    }
+
+    l1 := "1997.07.01 16:30:55 | homework #162347 submitted, comment: 'Ook!'\n"
+    l2 := "1997.07.01 16:30:55 | homework #162347 accepted with grade 8\n"
+    expected := l1 + l2
+    if res := buf.String(); res != expected {
+        t.Errorf("expected\n%v, got\n%v", expected, res)
     }
 }
